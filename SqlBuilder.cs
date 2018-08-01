@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Cosmos.SqlBuilder
 {
-    public class SqlBuilder {
+    public class SqlBuilder : ISqlBuilder {
         protected StringBuilder sql;
         protected int? top;
         protected List<string> selectCols;
