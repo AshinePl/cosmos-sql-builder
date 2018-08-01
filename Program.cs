@@ -22,8 +22,7 @@ namespace Cosmos.SqlBuilder
             Test12,
             Test13,
             Test14,
-            Test15,
-            Test16
+            Test15
         };
 
         static void Main(string[] args)
@@ -281,28 +280,6 @@ namespace Cosmos.SqlBuilder
                 .Build();
 
             return (text, "SELECT c.BoolVal, { \"Key\": c.InnerA.Key } as InnerA FROM c WHERE ((c.BoolVal) OR (c.Text = 5)) AND (c.Key = 'asd') ORDER BY c.Key ASC");
-        }
-
-        class Foo
-        {
-            public Foo InnerFoo { get; set; }
-            public string Bar { get; set; }
-            public bool Baz { get; set; }
-        }
-
-        static (string, string) Test16()
-        {
-            ISqlBuilder builder = new SqlBuilder();
-
-            var text = builder
-                .From<Foo>()
-                .Select(x => x.Bar)
-                .Select(x => x.InnerFoo, y => y.Select(z => z.Bar))
-                .Where(x => x.Baz && x.Bar == "FOO")
-                .OrderByAscending(x => x.Bar)
-                .Build();
-
-            return (text, "");
         }
     }
 }
