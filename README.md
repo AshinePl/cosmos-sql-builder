@@ -15,3 +15,7 @@ var text = builder
 
 "SELECT c.Bar, { "Bar": c.InnerFoo.Bar } as InnerFoo FROM c WHERE (c.Baz) AND (c.Bar = 'FOO') ORDER BY c.Bar ASC"
 ```
+
+# Copyright & License
+
+Released under the [MIT](https://opensource.org/licenses/MIT) License.
