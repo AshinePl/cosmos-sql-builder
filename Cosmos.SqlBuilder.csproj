@@ -11,5 +11,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Andrzej Bryś</Authors>
     <Company />
+    <Version>0.1.0</Version>
   </PropertyGroup>
 </Project>

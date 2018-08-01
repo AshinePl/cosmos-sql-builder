@@ -3,6 +3,11 @@ using System.Linq.Expressions;
 
 namespace Cosmos.SqlBuilder
 {
+    public interface ISqlBuilder
+    {
+        ISqlBuilderSelectTopOrAllOrSome<T> From<T>();
+    }
+
     public interface ISqlBuilderAll<T> : ISqlBuilderSelectTopOrAllOrSome<T>, ISqlBuilderSelectSomeOrWhereOrOrderBy<T>, ISqlBuilderWhereOrOrderBy<T>
     { }
 
