@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Cosmos.SqlBuilder
 {
@@ -193,10 +194,74 @@ namespace Cosmos.SqlBuilder
                 var unary = expression as UnaryExpression;
                 return $"c{unary.Operand.ToString().Substring(parameterName.Length)}";
             }
+            else if (expression as MemberExpression != null)
+            {
+                var memberExpression = ProcessMemberExpression(expression as MemberExpression);
+                if (memberExpression != null) return memberExpression;
+            }
+
             var expressionString = expression.ToString();
             return $"c{expressionString.Substring(parameterName.Length)}";
         }
-        
+
+        private string ProcessMemberExpression(MemberExpression member) 
+        {
+            if(member.Expression as MemberExpression != null) {
+                var submember = ProcessSubMemberExpression(member.Expression as MemberExpression);
+                return GetValueFromObject(submember, member.Member.Name);
+            }
+
+            var ex = member.Expression as ConstantExpression;
+            if (ex != null)
+            {
+                return GetValueFromObject(ex.Value, member.Member.Name);
+            }
+            return null;
+        }
+
+        private string GetValueFromObject(object obj, string fieldOrPropertyName)
+        {
+            var typeContainingValues = obj.GetType();
+            var fieldValue = typeContainingValues.GetField(fieldOrPropertyName);
+            if (fieldValue != null)
+            {
+                return fieldValue.GetValue(obj).ToString();
+            }
+            var propertyValue = typeContainingValues.GetProperty(fieldOrPropertyName);
+            if (propertyValue != null)
+            {
+                return propertyValue.GetValue(obj).ToString();
+            }
+            return null;
+        }
+
+        private object ProcessSubMemberExpression(MemberExpression member)
+        {
+            if (member.Expression as MemberExpression != null)
+            {
+                var submember = ProcessSubMemberExpression(member.Expression as MemberExpression);
+                return submember.GetType().GetProperty(member.Member.Name).GetValue(submember);
+            }
+
+            var ex = member.Expression as ConstantExpression;
+            if (ex != null)
+            {
+                var typeContainingValues = ex.Value.GetType();
+                var fieldValue = typeContainingValues.GetField(member.Member.Name);
+                if (fieldValue != null)
+                {
+                    return fieldValue.GetValue(ex.Value);
+                }
+                var propertyValue = typeContainingValues.GetProperty(member.Member.Name);
+                if (propertyValue != null)
+                {
+                    return propertyValue.GetValue(ex.Value);
+                }
+            }
+            return null;
+        }
+
+
         private string GetPropertyFullName<TRes>(Expression<Func<T, TRes>> func)
         {
             var body = func.Body.ToString().Split('.');
